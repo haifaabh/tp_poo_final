@@ -2,6 +2,13 @@ import java.util.*;
 public class Projet {
  String nom;
  String description;
+ 
+ public Projet(String nom, String description, ArrayList<Tache> taches) {
+        this.nom = nom;
+        this.description = description;
+        this.taches = taches;
+ }
+ 
  public Projet(String n,String d){
      this.nom=n;
      this.description=d;
