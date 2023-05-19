@@ -69,9 +69,6 @@ public class Tache {
             return categorie;
         }
 
-        // public abstract Creneau planifier(Creneau creneau);
-        // public abstract void replanifier(Creneau creneau);
-
      public void reporter(LocalDateTime date)
     {
         dateLimite = date;
