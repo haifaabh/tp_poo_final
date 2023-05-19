@@ -1,16 +1,16 @@
-import java.sql.Date;
+import java.time.LocalDateTime;
 
-public class Periode 
+public class Periode
 {
-    private String dateDebut;
-    private String dateFin;
-    
-    public String getDateDebut() 
+    private LocalDateTime dateDebut;
+    private LocalDateTime dateFin;
+
+    public LocalDateTime getDateDebut()
     {
         return dateDebut;
     }
 
-    public String getDateFin() 
+    public LocalDateTime getDateFin()
     {
         return dateFin;
     }
@@ -19,6 +19,15 @@ public class Periode
     {
         if((dateDebut.equals(periode.getDateDebut())) &&(dateFin.equals(periode.getDateFin())))
             return true;
+        return false;
+    }
+
+    public boolean inclus(LocalDateTime date)
+    {
+        if((!date.isAfter(dateFin))&&(!date.isBefore(dateDebut)))
+        {
+            return true;
+        }
         return false;
     }
 }
