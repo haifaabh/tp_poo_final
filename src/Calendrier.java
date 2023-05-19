@@ -56,4 +56,63 @@ public class Calendrier
     public ArrayList<Planning> getPlannings() {
         return plannings;
     }
+    
+    public void reporter(Tache tache, LocalDateTime date,Planning planning)
+    {
+        planning.suppTache(tache);
+        boolean stop=false;
+        Iterator<Planning> it = plannings.iterator();
+        while((it.hasNext())&&(!stop))
+        {
+            Planning plan = it.next();
+            if(plan.getPeriode().inclus(date))
+            {
+                plan.ajouterTache(tache, date);
+            }
+        }
+    }
+
+    public void miseAJourPlanning(Planning planning)
+    {
+        planning.miseAJour();
+    }
+
+    public Map<Etat_realisation, Integer> getEtats(LocalDateTime date)
+    {
+        int nbComplete = 0, nbNonRealise =0, nbEnCour=0 , nbAnnule=0 , nbReporte=0 ;
+        Jour jour = new Jour(date);
+        boolean stop=false;
+        Iterator<Planning> it = plannings.iterator();
+        while((it.hasNext())&&(!stop))
+        {
+            Planning plan = it.next();
+            if(plan.getPeriode().inclus(date))
+            {
+                stop = true;
+                jour = plan.getJour(date);
+            }
+        }
+        ArrayList<Creneau> creneaux = jour.getCreneaux();
+        for(Creneau creneau : creneaux )
+        {
+          Etat_realisation etat = creneau.getTache().getEtatRealisation();
+          if(etat.equals(Etat_realisation.Complétée))
+              nbComplete ++;
+          if(etat.equals(Etat_realisation.Annulée))
+              nbAnnule ++;
+          if(etat.equals(Etat_realisation.En_Cours))
+              nbEnCour++;
+          if(etat.equals(Etat_realisation.Non_Realisée))
+              nbNonRealise++;
+          if(etat.equals(Etat_realisation.Reportée))
+              nbReporte++;
+        }
+        return Map.of(
+                Etat_realisation.Complétée,nbComplete,
+                Etat_realisation.Annulée,nbAnnule,
+                Etat_realisation.En_Cours,nbEnCour,
+                Etat_realisation.Non_Realisée,nbNonRealise,
+                Etat_realisation.Reportée,nbReporte
+        );
+    }
 }
