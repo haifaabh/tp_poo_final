@@ -9,10 +9,26 @@ import java.util.List;
 public class Utilisateur {
     String pseudo;
     private Calendrier calendrier;
-    Badge badge;
     int nb_Tache_jours;
     int nb_Tache_Min;
-
+    private int joursConsec = 0;
+    private LocalDateTime dateDerniere; //Afin de garder le nombre de jours consécutifs non érroné
+    private Map<Badge, Integer> badges = Map.of(
+            Badge.Good,0,
+            Badge.Very_Good,0,
+            Badge.Excellent,0
+    );
+    private ArrayList<Categorie> categories = new ArrayList<Categorie>();
+    private ArrayList<Projet> projets = new ArrayList<Projet>();
+    private ArrayList<Planning> historique = new ArrayList<Planning>();
+    private ArrayList<Tache> tachesAPlanifier = new ArrayList<Tache>();
+    private int minDureeCreneau;
+    
+    public Utilisateur(String pseudo)
+    {
+        this.pseudo = pseudo;
+    }
+    
     public Utilisateur(String pseudo, Calendrier calendrier) {
         this.pseudo = pseudo;
         this.calendrier = calendrier;
@@ -275,5 +291,130 @@ return rend;
         return moyenneRendement;
     }
 
+    public void introduireEtat(Tache tache,Etat_realisation etat)
+    {
+        tache.setEtatRealisation(etat);
+        if(etat==Etat_realisation.completed)
+        {
+            nbTaches++;
+            if (nbTaches == nbMinTaches) {
+                System.out.println("Bravo !! Vous avez réussi à terminer "+ nbTaches +" taches Aujourd'hui!!");
+                LocalDateTime today = LocalDateTime.now();
+                if (!today.equals(dateDerniere))
+                {
+                    if (today.minusDays(1).equals(dateDerniere))
+                    {
+                        joursConsec++;
+                        feliciter();
+                    }
+                    else
+                        joursConsec = 1;
+                    dateDerniere = today;
+                }
+            }
+        }
+    }
+    
+     public void reporter(Tache tache ,LocalDateTime date , Planning planning,LocalDateTime dateLimite)
+    {
+        tache.setDateLimite(dateLimite);
+        tache.setEtatRealisation(Etat_realisation.delayed);
+        calendrier.reporter(tache,date, planning);
+    }
 
+    public void ajouterCategorie(String type , String couleur)
+    {
+        Categorie cat = new Categorie(type,couleur);
+        categories.add(cat);
+    }
+
+    public void classer(Tache tache, Categorie cat)
+    {
+        tache.setCategorie(cat);
+    }
+
+    public void creerProjet(String nom , String description, ArrayList<Tache> taches )
+    {
+        Projet projet = new Projet(nom, description, taches);
+        projets.add(projet);
+    }
+
+    public boolean valider(Planning planning, boolean valide)
+    {
+        if(valide)
+        {
+            calendrier.creerPlanning(planning.getPeriode(), planning.getJours());
+            return true;
+        }
+        return false;
+    }
+
+    public void changerNom(Tache tache, String nom )
+    {
+        tache.setNom(nom);
+    }
+
+    public void bloquer(Creneau creneau )
+    {
+        creneau.setBloque(true);
+    }
+
+    public void suppTache(Tache tache , Planning planning)
+    {
+        planning.suppTache(tache);
+    }
+
+    public ArrayList<Jour> fixerCreneauLibre(int debut, int fin , Periode periode)
+    {
+        LocalDateTime date = periode.getDateDebut();
+        ArrayList<Jour> jours = new ArrayList<Jour>();
+        while(date.isBefore(periode.getDateFin()))
+        {
+            Jour jour = new Jour(date);
+            jour.ajouterCreneau(new Creneau(debut, fin));
+            jours.add(jour);
+            date = date.plusDays(1);
+        }
+        return jours;
+    }
+
+    public void creerPlanning(int debut,int fin , Periode periode)
+    {
+        ArrayList<Jour> jours = fixerCreneauLibre(debut, fin, periode);
+        calendrier.creerPlanning(periode, jours);
+    }
+
+    public void miseAJourPlanning(Planning planning)
+    {
+        calendrier.miseAJourPlanning(planning);
+    }
+
+    public Map<Etat_realisation, Integer> EtatsTaches()
+    {
+        LocalDateTime ceJour = LocalDateTime.now();
+        Map<Etat_realisation, Integer> etats= calendrier.getEtats(ceJour);
+        return etats;
+    }
+
+    public void feliciter()
+    {
+        if(joursConsec==5)
+        {
+            if(badges.get(Badge.Good)<3)
+            {
+                badges.put(Badge.Good, badges.get(Badge.Good)+1);
+                System.out.println("Félicitation! Vous avez obtenu un badge Good!!");
+            } else if (badges.get(Badge.Very_Good)<3)
+            {
+                badges.put(Badge.Very_Good, badges.get(Badge.Very_Good)+1);
+                System.out.println("Félicitation! Vous avez obtenu un badge Very Good!!");
+            }
+            else
+            {
+                badges.put(Badge.Excellent, badges.get(Badge.Excellent)+1);
+                System.out.println("Félicitation! Vous avez obtenu un badge Excellent!!");
+            }
+            joursConsec=0;
+        }
+    }
 }
