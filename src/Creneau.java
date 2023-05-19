@@ -14,6 +14,7 @@ public class Creneau {
         this.debut = debut;
         this.fin = fin;
     }
+    
     public Creneau() {
         // Default constructor
     }
@@ -97,5 +98,24 @@ public class Creneau {
         System.out.println("Fin: " + fin);
     }
     
+    public Creneau decomposer(int duree,Tache tache)throws DureeMinExeption
+    {
+        Creneau creneau = new Creneau(this.duree-duree);
+        if(creneau.getDuree()<dureeMin) throw new DureeMinExeption();
+        this.duree = duree;
+        ajouterTache(tache);
+        return creneau;
     }
+    
+     public void suppTache()
+    {
+        tache = null;
+        type = "libre";
+    }
+
+    public void rendreLibre()
+    {
+        type = "libre";
+    } 
+ }
 
