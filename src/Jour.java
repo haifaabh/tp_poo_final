@@ -67,6 +67,10 @@ if(trouv==false){
     public void setCreneaux(ArrayList<Creneau> creneaux) {
         this.creneaux = creneaux;
     }
-
+    
+    public void ajouterCreneau(Creneau creneau)
+    {
+        creneaux.add(creneau);
+    }
 
 }
