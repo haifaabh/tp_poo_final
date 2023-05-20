@@ -15,6 +15,11 @@ public class Calendrier
         plannings.add(planning);
     }*/
 
+    
+    public void addPlanning(Planning planning) {
+    plannings.add(planning);
+    }
+    
     public Planning getPlanning(Planning planning)
     {
         if(plannings.contains(planning))
