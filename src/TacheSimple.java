@@ -30,7 +30,7 @@ public void evaluer(Etat_realisation etat) {
 }
 
 public Creneau planifier(Creneau creneau) {
-    if (creneau.getType() == "libre" && creneau.getDuree() >= this.getDuree()) {
+    if (creneau==null||(creneau.getType() == "libre" && creneau.getDuree() >= this.getDuree()) ){
         if (creneau.getDuree() == this.getDuree() ){ 
         creneau.ajouterTache(this);
         }
