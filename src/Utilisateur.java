@@ -200,7 +200,8 @@ public class Utilisateur {
                           creneau.ajouterTache(tache);
                           trouv = true;
                       }
- else            {         trouv = true;
+        else
+        {         trouv = true;
                       creneau.ajouterTache(tache);}
 
                           }
@@ -214,6 +215,11 @@ public class Utilisateur {
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime date = now.withHour(0).withMinute(0); // Set the date to today
+        if (calendrier.getPlannings().isEmpty()) {
+           //creer un planning si  calendrier est vide
+            Planning newPlanning = new Planning();
+            calendrier.addPlanning(newPlanning);
+        }
         //trouver le premier creneau libre
         for (Planning planning : calendrier.getPlannings()) {
             for (Jour jour : planning.getJours()) {
@@ -235,14 +241,35 @@ public class Utilisateur {
 
     }
 
-       public void planifierTacheDeco(TacheDecomposable tache,LocalDateTime date,ArrayList<Creneau> creneaux){
+
+
+    public void planifierTacheDeco(TacheDecomposable tache,LocalDateTime date,ArrayList<Creneau> creneaux){
       ArrayList<TacheSimple> taches=tache.getTaches();
      int j=0;
       for(int i=0;i<taches.size();i++){
-      this.planifierTacheSimple(taches.get(i), date,creneaux.get(j));
+      planifierTacheSimple(taches.get(i), date,creneaux.get(j));
       j++;  
     }
     }
+
+    public void planifierTacheDecomposableAutomatiquement(TacheDecomposable tache) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime date = now.withHour(0).withMinute(0); // Set the date to today
+
+        // Check if the calendrier est vide
+        if (calendrier.getPlannings().isEmpty()) {
+            // Create a new planning and add it to the calendrier
+            Planning newPlanning = new Planning();
+            calendrier.addPlanning(newPlanning);
+        }
+        
+        
+        for (TacheSimple sousTache : tache.getTaches()) {
+            planifierTacheSimpleAutomatiquement(sousTache);
+
+        }
+    }
+
 
 
     public Etat_realisation evaluer(ArrayList<Tache> taches) {
