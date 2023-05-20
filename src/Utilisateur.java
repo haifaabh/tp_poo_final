@@ -168,23 +168,72 @@ public class Utilisateur {
 
 */
 
-    public void planifierTacheSimple(TacheSimple tache,LocalDateTime  date,Creneau creneau){
-        int fois=tache.getPeriodicite().getFois();
-        int jours=tache.getPeriodicite().getJours();
-        boolean trouv = false;
-        for(int k=0;k<fois;k++){ 
-        for (int i = 0; i < calendrier.getPlannings().size() && !trouv; i++) {
-            Planning planning = calendrier.getPlanning(i);
-            Iterator<Jour> jourIterator = planning.getJours().iterator();
-            while (jourIterator.hasNext() && !trouv) {
-                Jour jour = jourIterator.next();
-                if (jour.getDate().equals(date)){ 
-                    trouv=true;
-                   tache.planifier(creneau);
+  
+  public void planifierTacheSimple(TacheSimple tache, LocalDateTime date, Creneau creneau) {
+      int fois = tache.getPeriodicite().getFois();
+      int jours = tache.getPeriodicite().getJours();
+      boolean trouv = false;
+
+      // Check if the calendrier is empty
+      if (calendrier.getPlannings().isEmpty()) {
+          // Create a new planning and add it to the calendrier
+          Planning newPlanning = new Planning();
+          calendrier.addPlanning(newPlanning);
+      }
+      for (int k = 0; k < fois; k++) {
+          for (int i = 0; i < calendrier.getPlannings().size() && !trouv; i++) {
+              Planning planning = calendrier.getPlanning(i);
+
+              // Check if the planning doesn't have any jours
+              if (planning.getJours().isEmpty()) {
+                  // Create a new jour and add it to the planning
+                  Jour newJour = new Jour(date);
+                  planning.ajouterJour(newJour);
+              }
+
+              Iterator<Jour> jourIterator = planning.getJours().iterator();
+              while (jourIterator.hasNext() && !trouv) {
+                  Jour jour = jourIterator.next();
+                  if (jour.getDate().equals(date)) {
+                      if(jour.getCreneaux().isEmpty()){
+                          jour.getCreneaux().add(creneau);
+                          creneau.ajouterTache(tache);
+                          trouv = true;
+                      }
+ else            {         trouv = true;
+                      creneau.ajouterTache(tache);}
+
+                          }
+                  }
+                  date = date.plusDays(jours);
+              }
+          }
+      }
+
+    public void planifierTacheSimpleAutomatiquement(TacheSimple tache) {
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime date = now.withHour(0).withMinute(0); // Set the date to today
+        //trouver le premier creneau libre
+        for (Planning planning : calendrier.getPlannings()) {
+            for (Jour jour : planning.getJours()) {
+                if (jour.getDate().isAfter(now) || jour.getDate().isEqual(now)) {
+
+                    for (Creneau creneau : jour.getCreneaux()) {
+                        if (creneau.getTache() == null|| creneau.getType().equals("libre")) {
+                           //plannifier la tache dans le premier creneau libre
+                            tache.planifier(creneau);
+                            System.out.println("La tache " + tache.getNom() + " était automatiquement plannifier");
+                            return;
+                        }
+                    }
                 }
-                date=date.plusDays(jours);
-            }}}
-       }
+            }
+        }
+
+        System.out.println("Il n'existe pas un creneau libre pour plannifier cette tache !");
+
+    }
 
        public void planifierTacheDeco(TacheDecomposable tache,LocalDateTime date,ArrayList<Creneau> creneaux){
       ArrayList<TacheSimple> taches=tache.getTaches();
