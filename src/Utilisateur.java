@@ -169,6 +169,7 @@ public class Utilisateur {
 */
 
   
+ 
   public void planifierTacheSimple(TacheSimple tache, LocalDateTime date, Creneau creneau) {
       int fois = tache.getPeriodicite().getFois();
       int jours = tache.getPeriodicite().getJours();
@@ -183,7 +184,6 @@ public class Utilisateur {
       for (int k = 0; k < fois; k++) {
           for (int i = 0; i < calendrier.getPlannings().size() && !trouv; i++) {
               Planning planning = calendrier.getPlanning(i);
-
               // Check if the planning doesn't have any jours
               if (planning.getJours().isEmpty()) {
                   // Create a new jour and add it to the planning
@@ -200,10 +200,14 @@ public class Utilisateur {
                           creneau.ajouterTache(tache);
                           trouv = true;
                       }
-        else
-        {         trouv = true;
-                      creneau.ajouterTache(tache);}
-
+        else {
+                          for (Creneau creneau1 : jour.getCreneaux()) {
+                              if(creneau1.equals(creneau)) {
+                                  trouv = true;
+                                  creneau1.ajouterTache(tache);
+                              }
+                          }
+                      }
                           }
                   }
                   date = date.plusDays(jours);
@@ -213,8 +217,8 @@ public class Utilisateur {
 
     public void planifierTacheSimpleAutomatiquement(TacheSimple tache) {
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime date = now.withHour(0).withMinute(0); // Set the date to today
+        LocalDateTime date = LocalDateTime.now();
+     //   LocalDateTime date = now.withHour(0).withMinute(0); // Set the date to today
         if (calendrier.getPlannings().isEmpty()) {
            //creer un planning si  calendrier est vide
             Planning newPlanning = new Planning();
@@ -222,13 +226,22 @@ public class Utilisateur {
         }
         //trouver le premier creneau libre
         for (Planning planning : calendrier.getPlannings()) {
+            if (planning.getJours().isEmpty()) {
+                // Create a new jour and add it to the planning
+                Jour newJour = new Jour(date);
+                planning.ajouterJour(newJour);
+            }
             for (Jour jour : planning.getJours()) {
-                if (jour.getDate().isAfter(now) || jour.getDate().isEqual(now)) {
 
+                if (jour.getDate().isAfter(date) || jour.getDate().isEqual(date)) {
+                 if(jour.getCreneaux().isEmpty()){
+                     Creneau cre=new Creneau(tache.getDuree());
+                     jour.ajouterCreneau(cre);
+                 }
                     for (Creneau creneau : jour.getCreneaux()) {
-                        if (creneau.getTache() == null|| creneau.getType().equals("libre")) {
-                           //plannifier la tache dans le premier creneau libre
-                            tache.planifier(creneau);
+                        if (creneau.getTache() == null || creneau.getType().equals("libre")) {
+                            //plannifier la tache dans le premier creneau libre
+                           creneau.ajouterTache(tache);
                             System.out.println("La tache " + tache.getNom() + " était automatiquement plannifier");
                             return;
                         }
@@ -236,11 +249,9 @@ public class Utilisateur {
                 }
             }
         }
-
         System.out.println("Il n'existe pas un creneau libre pour plannifier cette tache !");
 
     }
-
 
 
     public void planifierTacheDeco(TacheDecomposable tache,LocalDateTime date,ArrayList<Creneau> creneaux){
@@ -262,14 +273,13 @@ public class Utilisateur {
             Planning newPlanning = new Planning();
             calendrier.addPlanning(newPlanning);
         }
-        
-        
+
+
         for (TacheSimple sousTache : tache.getTaches()) {
             planifierTacheSimpleAutomatiquement(sousTache);
 
         }
     }
-
 
 
     public Etat_realisation evaluer(ArrayList<Tache> taches) {
@@ -367,6 +377,34 @@ return rend;
         return moyenneRendement;
     }
 
+
+
+    public void getTotalTimeSpentOnCategory(String categoryType) {
+        Duration totalTime = Duration.ZERO;
+
+        for (Planning planning : calendrier.getPlannings()) {
+            for (Jour jour : planning.getJours()) {
+                for (Creneau creneau : jour.getCreneaux()) {
+                    Tache tache = creneau.getTache();
+                    if (tache != null && tache.getCategorie().getType().equals(categoryType)) {
+                        totalTime = totalTime.plusMinutes(creneau.getDuree());
+                    }
+                }
+            }
+        }
+        long hours = totalTime.toHours();
+        long minutes = totalTime.toMinutesPart();
+        long seconds = totalTime.toSecondsPart();
+        String formattedDuration = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        System.out.println("La durée: " + formattedDuration);
+       // return totalTime;
+    }
+
+    public Calendrier getCalendrier() {
+      return calendrier;
+    }
+    
+    
     public void introduireEtat(Tache tache,Etat_realisation etat)
     {
         tache.setEtatRealisation(etat);
