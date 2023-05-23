@@ -137,37 +137,11 @@ import java.util.TreeMap;
         {
             System.out.println("Veuillez entrer le nom de la tache");
             String nom = scan.next();
-            System.out.println("Quel est l'état de réalisation de cette tache? : ");
-            System.out.println("1-Complétée");
-            System.out.println("2-Non réalisée");
-            System.out.println("3-En cours");
-            System.out.println("4-Annulée");
-            System.out.println("5-Reportée");
-            System.out.println("Veuillez choisir parmi ces choix ");
-            int choix = scan.nextInt();
-            Etat_realisation etat;
-            switch (choix)
-            {
-                case 1 : etat = Etat_realisation.completed;
-                    break;
-                case 2 : etat = Etat_realisation.notRealized;
-                    break;
-                case 3 : etat = Etat_realisation.in_progress;
-                    break;
-                case 4 : etat = Etat_realisation.cancelled;
-                    break;
-                case 5 : etat = Etat_realisation.delayed;
-                    break;
-                default:
-                {
-                    System.out.println("Ce choix est inexistant , la tache sera donc par défaut classée non réalisée");
-                    etat = Etat_realisation.notRealized;
-                }
-            }
+            Etat_realisation etat = Etat_realisation.notRealized;
             System.out.println("Veuillez entrer la durée : ");
             int duree = scan.nextInt();
             System.out.println("Veuillez préciser sa priorité de 1 à 3 tel que 1 est le plus prioritaire");
-            choix = scan.nextInt();
+            int choix = scan.nextInt();
             Priorite prio;
             switch (choix)
             {
@@ -214,5 +188,45 @@ import java.util.TreeMap;
             {
                 //Le message est déja affichée dans le constructeur de l'exception
             }
+        }
+
+        public void planifierSimpleAuto(Utilisateur utilisateur)
+        {
+            System.out.println("Veuillez entrer le nom de la tache");
+            String nom = scan.next();
+            Etat_realisation etat = Etat_realisation.notRealized;
+            System.out.println("Veuillez entrer la durée : ");
+            int duree = scan.nextInt();
+            System.out.println("Veuillez préciser sa priorité de 1 à 3 tel que 1 est le plus prioritaire");
+            int choix = scan.nextInt();
+            Priorite prio;
+            switch (choix)
+            {
+                case 1 : prio = Priorite.High;
+                    break;
+                case 2 : prio = Priorite.Medium;
+                    break;
+                case 3 : prio = Priorite.Low;
+                    break;
+                default:
+                {
+                    System.out.println("Le numéro que vous avez entré ne correspond à aucun choix , la priorité est donc Low par défaut");
+                    prio = Priorite.Low;
+                }
+            }
+            System.out.println("Veuillez préciser la date limite également");
+            LocalDate date = LocalDate.parse(scan.next(), formatter);
+            LocalTime time = LocalTime.MIDNIGHT;
+            LocalDateTime dateLimite = LocalDateTime.of(date, time);
+            System.out.println("Ajoutez une catégorie à votre tache");
+            Categorie cat = ajouterCategorie(utilisateur);
+            System.out.println("Veuillez lui associer un projet s'il en a");
+            System.out.println("Veuillez ajouter sa périodicité également (mettre un 0 si vous ne voulez pas)");
+            int fois = scan.nextInt();
+            System.out.println("Quel est sa fréquence?");
+            int jours = scan.nextInt();
+            Periodicite periodicite = new Periodicite(fois,jours);
+            TacheSimple tache = new TacheSimple(nom,etat,duree,dateLimite,cat,prio,null,periodicite);
+            utilisateur.planifierTacheSimpleAutomatiquement(tache);
         }
     }

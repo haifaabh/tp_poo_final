@@ -31,19 +31,24 @@ public class TacheSimple  extends Tache{
     }
 
     public Creneau planifier(Creneau creneau) {
-        if (creneau==null||(creneau.getType() == "libre" && creneau.getDuree() >= this.getDuree()) ){
+        System.out.println("creneau duree : "+creneau.getDuree());
+        System.out.println("tache duree : "+this.getDuree());
+        if (creneau.getType().equals("libre") && creneau.getDuree() >= this.getDuree()) {
+            System.out.println("yooo?");
             if (creneau.getDuree() == this.getDuree() ){
                 creneau.ajouterTache(this);
+                creneau.afficherCreneau();
             }
             else{
                 try {
                     creneau=creneau.decomposer(creneau.getDebut(),creneau.getDebut()+this.getDuree(), this);
+                    return creneau;
                 } catch (DureeMinExeption e) {
                     throw new RuntimeException(e);
                 }
             }
         }
-        return creneau;
+        return null;
     }
 
     public void replanifier(Creneau creneau) {

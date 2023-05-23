@@ -90,6 +90,7 @@ public class Creneau implements Serializable {
         Creneau creneau = new Creneau(debut, fin);
         duree = duree - (fin - debut);
         if(duree<dureeMin) throw new DureeMinExeption();
+        this.debut=fin;
         creneau.ajouterTache(tache);
         return creneau;
     }
@@ -99,6 +100,7 @@ public class Creneau implements Serializable {
         Creneau creneau = new Creneau(this.duree-duree);
         if(creneau.getDuree()<dureeMin) throw new DureeMinExeption();
         this.duree = duree;
+        fin -= duree;
         ajouterTache(tache);
         return creneau;
     }

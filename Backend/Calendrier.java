@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class Calendrier implements Serializable
 {
+    private static final long serialVersionUID = -3103021389989891697L;
     private ArrayList<Planning> plannings = new ArrayList<Planning>();
 
     public Planning getPlanning(int i) {
@@ -120,6 +121,24 @@ public class Calendrier implements Serializable
                 Etat_realisation.notRealized,nbNonRealise,
                 Etat_realisation.delayed,nbReporte
         );
+    }
+
+    public Tache getTache(Tache tache)
+    {
+        Iterator<Planning> it = plannings.iterator();
+        while(it.hasNext())
+        {
+            Planning plan = it.next();
+            ArrayList<Jour> jours = plan.getJours();
+            Iterator<Jour> j = jours.iterator();
+            while(j.hasNext())
+            {
+                Jour jour = j.next();
+                if(jour.getTache(tache)!=null)
+                    return jour.getTache(tache);
+            }
+        }
+        return null;
     }
 }
 

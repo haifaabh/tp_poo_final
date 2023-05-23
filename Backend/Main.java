@@ -56,9 +56,14 @@ public class Main {
         utilisateur.afficherCalendrier();
 
         System.out.println("4-Planifier une tache simple manuellement");
-        app.planifierTacheSimple(utilisateur);
-        utilisateur.afficherCalendrier();
-        app.quitter();
+        //app.planifierTacheSimple(utilisateur);
+
+
         System.out.println("5-Planifier une tache automatiquement");
+        app.planifierSimpleAuto(utilisateur);
+        utilisateur.afficherCalendrier();
+
+        System.out.println("6-Introduire l'etat d'une tache");
+        app.quitter();
     }
 }

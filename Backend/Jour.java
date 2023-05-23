@@ -1,11 +1,14 @@
 package com.example.tp.Backend;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class Jour implements Serializable
 {
+    @Serial
+    private static final long serialVersionUID = -3979269912217602497L;
     private LocalDateTime date;
     private int debutDuree;
     private int finDuree;
@@ -84,6 +87,21 @@ public class Jour implements Serializable
     public String toString()
     {
         return date.toString();
+    }
+
+    public Tache getTache(Tache tache)
+    {
+        Iterator<Creneau> it= creneaux.iterator();
+        while(it.hasNext())
+        {
+            Creneau cren = it.next();
+            if(cren.getType().equals("occupé"))
+            {
+                if(tache.equals(cren.getTache()))
+                    return cren.getTache();
+            }
+        }
+        return null;
     }
 }
 

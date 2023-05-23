@@ -1,10 +1,13 @@
 package com.example.tp.Backend;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class Utilisateur implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 9163008528982668413L;
     private String pseudo;
     private int nbMinTaches;
     private int nbTaches;
@@ -63,8 +66,9 @@ public class Utilisateur implements Serializable {
         }
     }
 
-    public void introduireEtat(Tache tache,Etat_realisation etat)
+    public void introduireEtat(Tache tacheInitial,Etat_realisation etat)
     {
+        Tache tache = calendrier.getTache(tacheInitial);
         tache.setEtatRealisation(etat);
         if(etat==Etat_realisation.completed)
         {
@@ -336,25 +340,34 @@ public class Utilisateur implements Serializable {
                     if (jour.getDate().isEqual(currentDate)) {
                         System.out.println("rana dkhelna yoo"+jour.getDate());
                         if (jour.getCreneaux().isEmpty()) {
-                            System.out.println("wth makach des creneaux");
-                            jour.getCreneaux().add(creneau);
-                            creneau.ajouterTache(tache);
+                            System.out.println("Il n'y a pas de creneaux");
                             trouv = true;
                         } else {
                             System.out.println("third");
                             boolean creneauFound = false;
                             for (Creneau creneau1 : jour.getCreneaux()) {
-                                if (creneau1.equals(creneau)) {
-                                    creneau1.ajouterTache(tache);
+                                if (creneau1.getType().equals(creneau.getType())&&(creneau1.isBloque()==creneau.isBloque())) {
+                                    if (creneau1.getType().equals("libre") && creneau1.getDuree() >= tache.getDuree()) {
+                                        if (creneau1.getDuree() == tache.getDuree() ){
+                                            creneau1.ajouterTache(tache);
+                                        }
+                                        else{
+
+                                                try {
+                                                    creneau1=creneau1.decomposer(creneau1.getDebut(),creneau1.getDebut()+tache.getDuree(), tache);
+                                                    jour.ajouterCreneau(creneau1);
+                                                } catch (DureeMinExeption e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                        }
+                                    }
                                     creneauFound = true;
                                     trouv = true;
                                     break;
                                 }
                             }
                             if (!creneauFound) {
-                                System.out.println("fourth");
-                                jour.getCreneaux().add(creneau);
-                                creneau.ajouterTache(tache);
+                                System.out.println("makach creneau kima hebitou!!");
                                 trouv = true;
                             }
                         }
@@ -377,10 +390,14 @@ public class Utilisateur implements Serializable {
                 if (jour.getDate().isAfter(now) || jour.getDate().isEqual(now)) {
 
                     for (Creneau creneau : jour.getCreneaux()) {
-                        if (creneau.getTache() == null|| creneau.getType().equals("libre")) {
+                        if (creneau.getType().equals("libre")&& creneau.getDuree() >= tache.getDuree()) {
                             //plannifier la tache dans le premier creneau libre
-                            tache.planifier(creneau);
+                            Creneau cren = tache.planifier(creneau);
+                            if(cren!=null) jour.ajouterCreneau(cren);
                             System.out.println("La tache " + tache.getNom() + " était automatiquement plannifier");
+                            if(cren!=null) cren.afficherCreneau();
+                            creneau.afficherCreneau();
+                            System.out.println(jour.toString());
                             return;
                         }
                     }
